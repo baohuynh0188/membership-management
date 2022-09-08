@@ -1,26 +1,32 @@
-import React from 'react';
-import logo from './logo.svg';
-import './App.css';
+import React, { useState } from 'react';
+import { Container } from 'react-bootstrap';
+import { Route, Routes } from 'react-router-dom';
+import Header from './components/Header';
+import DetailPage from './pages/DetailPage';
+import ManagementPage from './pages/ManagementPage';
+import listMember from './shared/utilities/data';
 
-function App() {
+localStorage.setItem('members', JSON.stringify(listMember));
+
+const App = () => {
+  const [members, setMembers] = useState<[]>(() => {
+    try {
+      const listMember = JSON.parse(localStorage.getItem('members') || '');
+      return listMember;
+    } catch {
+      return [];
+    }
+  });
+
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.tsx</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
+    <Container>
+      <Header />
+      <Routes>
+        <Route path='/' element={<ManagementPage members={members} />} />
+        <Route path='/detail' element={<DetailPage />} />
+      </Routes>
+    </Container>
   );
-}
+};
 
 export default App;
