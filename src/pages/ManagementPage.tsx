@@ -2,21 +2,21 @@ import React, { useState } from 'react';
 import { Button, Col, Row, Table } from 'react-bootstrap';
 import IMember from '../shared/interfaces/member.interface';
 import renderGender from '../shared/utilities/renderGender';
-import AddMembershipModal from '../components/AddMembershipModal';
+import MembershipModal from '../components/MembershipModal';
 
 const ManagementPage = ({ members }: any): JSX.Element => {
   const [showModal, setShowModal] = useState<boolean>(false);
+  const [memberId, setMemberId] = useState<string>('');
 
   const renderTableRow = (member: IMember): React.ReactNode => {
     const { id, fullName, username, email, address, gender } = member;
 
     const onEditHandler = (memberId: string) => {
-      console.log(memberId);
+      setShowModal(true);
+      setMemberId(memberId);
     };
 
-    const onDeleteHandler = (memberId: string) => {
-      console.log(memberId);
-    };
+    const onDeleteHandler = (memberId: string) => {};
 
     return (
       <tr key={id}>
@@ -43,6 +43,7 @@ const ManagementPage = ({ members }: any): JSX.Element => {
   };
 
   const showModalHandler = (): void => {
+    setMemberId('');
     setShowModal(true);
   };
 
@@ -60,7 +61,11 @@ const ManagementPage = ({ members }: any): JSX.Element => {
         >
           Add member
         </Button>
-        <AddMembershipModal show={showModal} onClose={closeModalHandler} />
+        <MembershipModal
+          show={showModal}
+          memberId={memberId}
+          onClose={closeModalHandler}
+        />
         <Table>
           <thead>
             <tr>

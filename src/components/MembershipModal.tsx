@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { Button, Col, Form, Row } from 'react-bootstrap';
 import useInput from '../hooks/useInput';
 import ModalOverlay from './ModalOverlay';
@@ -7,16 +7,20 @@ import {
   checkEmail,
   checkSelect,
 } from '../shared/utilities/validate';
+import classNames from 'classnames';
+import { camalize } from '../shared/utilities/stringUtils';
 
-interface IAddMembershipModal {
+interface IMembershipModal {
   show: boolean;
+  memberId?: string;
   onClose: () => void;
 }
 
-const AddMembershipModal = ({
+const MembershipModal = ({
   show,
+  memberId,
   onClose,
-}: IAddMembershipModal): JSX.Element => {
+}: IMembershipModal): JSX.Element => {
   const {
     value: enteredFullNameValue,
     isValid: isValidName,
@@ -24,6 +28,7 @@ const AddMembershipModal = ({
     valueChangedHandler: fullNameInputChangedHandler,
     valueBlurHandler: fullNameInputBlurHandler,
     resetValue: resetFullNameValue,
+    fetchValue: fetchFullNameValue,
   } = useInput((value) => checkNotEmpty(value || ''));
 
   const {
@@ -33,6 +38,7 @@ const AddMembershipModal = ({
     valueChangedHandler: usernameInputChangedHandler,
     valueBlurHandler: usernameInputBlurHandler,
     resetValue: resetUsernameValue,
+    fetchValue: fetchUsernameValue,
   } = useInput((value) => checkNotEmpty(value || ''));
 
   const {
@@ -42,6 +48,7 @@ const AddMembershipModal = ({
     valueChangedHandler: emailInputChangedHandler,
     valueBlurHandler: emailInputBlurHandler,
     resetValue: resetEmailValue,
+    fetchValue: fetchEmailValue,
   } = useInput((value) => checkEmail(value || ''));
 
   const {
@@ -51,17 +58,37 @@ const AddMembershipModal = ({
     valueChangedHandler: genderInputChangedHandler,
     valueBlurHandler: genderInputBlurHandler,
     resetValue: resetGenderValue,
+    fetchValue: fetchGenderValue,
   } = useInput((value) => checkSelect(value));
 
-  const saveMemberHandler = (event: any) => {
+  const closeModalHandler = () => {
     onClose();
-    console.log(enteredGender);
     resetFullNameValue();
     resetUsernameValue();
     resetEmailValue();
     resetGenderValue();
   };
 
+  const saveMemberHandler = (event: any) => {
+    closeModalHandler();
+  };
+
+  useEffect(() => {
+    if (memberId) {
+      fetchFullNameValue('fsdfsd');
+      fetchUsernameValue('gfgd');
+      fetchEmailValue('gdfgfdg');
+      fetchGenderValue(2);
+    }
+  }, [
+    memberId,
+    fetchFullNameValue,
+    fetchUsernameValue,
+    fetchEmailValue,
+    fetchGenderValue,
+  ]);
+
+  const title = memberId ? 'Edit Member' : 'Add Member';
   let formIsInValid = true;
 
   if (isValidName && isValidUsername && isValidEmail && isValidGender) {
@@ -69,15 +96,18 @@ const AddMembershipModal = ({
   }
 
   return (
-    <ModalOverlay title='Add Member' show={show} size='lg' backdrop='static'>
+    <ModalOverlay title={title} show={show} size='lg' backdrop='static'>
       <ModalOverlay.Body>
         <Form validated={!formIsInValid}>
-          <Form.Group className='mb-3' controlId='fullName'>
+          <Form.Group
+            className='mb-3'
+            controlId={`fullName-${camalize(title)}`}
+          >
             <Form.Label>Full Name</Form.Label>
             <Form.Control
+              className={classNames({ 'is-invalid': nameHasError })}
               type='text'
               placeholder='Enter full name'
-              id='fullName'
               required
               value={enteredFullNameValue}
               onChange={fullNameInputChangedHandler}
@@ -86,12 +116,15 @@ const AddMembershipModal = ({
           </Form.Group>
           <Row>
             <Col>
-              <Form.Group className='mb-3' controlId='username'>
+              <Form.Group
+                className='mb-3'
+                controlId={`username-${camalize(title)}`}
+              >
                 <Form.Label>Username</Form.Label>
                 <Form.Control
+                  className={classNames({ 'is-invalid': usernameHasError })}
                   type='text'
                   placeholder='Enter username'
-                  id='username'
                   required
                   value={enteredUsernameValue}
                   onChange={usernameInputChangedHandler}
@@ -100,12 +133,15 @@ const AddMembershipModal = ({
               </Form.Group>
             </Col>
             <Col>
-              <Form.Group className='mb-3' controlId='email'>
+              <Form.Group
+                className='mb-3'
+                controlId={`email-${camalize(title)}`}
+              >
                 <Form.Label>Email address</Form.Label>
                 <Form.Control
+                  className={classNames({ 'is-invalid': emailHasError })}
                   type='email'
                   placeholder='Enter email'
-                  id='email'
                   required
                   value={enteredEmailValue}
                   onChange={emailInputChangedHandler}
@@ -119,11 +155,10 @@ const AddMembershipModal = ({
           </Row>
           <Row>
             <Col>
-              <Form.Group className='mb-3' controlId='dateOfBirth'>
+              <Form.Group controlId={`dateOfBirth-${camalize(title)}`}>
                 <Form.Label>date of birth</Form.Label>
                 <Form.Control
                   type='date'
-                  id='dateOfBirth'
                   placeholder='Enter date of birth'
                   onChange={(event) => console.log(event.target.value)}
                 />
@@ -132,8 +167,8 @@ const AddMembershipModal = ({
             <Col>
               <Form.Label>Gender</Form.Label>
               <Form.Select
+                className={classNames({ 'is-invalid': genderHasError })}
                 aria-label='gender'
-                id='gender'
                 value={enteredGender}
                 onChange={genderInputChangedHandler}
                 onBlur={genderInputBlurHandler}
@@ -147,7 +182,7 @@ const AddMembershipModal = ({
           </Row>
         </Form>
       </ModalOverlay.Body>
-      <ModalOverlay.Footer onClose={onClose}>
+      <ModalOverlay.Footer onClose={closeModalHandler}>
         <Button
           variant='success'
           type='submit'
@@ -161,4 +196,4 @@ const AddMembershipModal = ({
   );
 };
 
-export default AddMembershipModal;
+export default MembershipModal;
