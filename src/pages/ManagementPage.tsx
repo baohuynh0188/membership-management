@@ -1,12 +1,15 @@
-import React, { useState } from 'react';
+import React, { useState, useContext } from 'react';
 import { Button, Col, Row, Table } from 'react-bootstrap';
 import IMember from '../shared/interfaces/member.interface';
 import renderGender from '../shared/utilities/renderGender';
 import MembershipModal from '../components/MembershipModal';
+import { MemberContext } from '../store/Context';
 
-const ManagementPage = ({ members }: any): JSX.Element => {
+const ManagementPage = (): JSX.Element => {
+  const [state] = useContext<any>(MemberContext);
   const [showModal, setShowModal] = useState<boolean>(false);
   const [memberId, setMemberId] = useState<string>('');
+  const members = state?.value || [];
 
   const renderTableRow = (member: IMember): React.ReactNode => {
     const { id, fullName, username, email, address, gender } = member;
