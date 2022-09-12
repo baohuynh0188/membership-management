@@ -6,15 +6,6 @@ import DetailPage from './pages/DetailPage';
 import ManagementPage from './pages/ManagementPage';
 
 const App = () => {
-  // const [members, setMembers] = useState<[]>(() => {
-  //   try {
-  //     const listMember = JSON.parse(localStorage.getItem('members') || '');
-  //     return listMember;
-  //   } catch {
-  //     return [];
-  //   }
-  // });
-
   return (
     <Container>
       <Header />

@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { useContext, useEffect } from 'react';
 import { Button, Col, Form, Row } from 'react-bootstrap';
 import useInput from '../hooks/useInput';
 import ModalOverlay from './ModalOverlay';
@@ -7,8 +7,10 @@ import {
   checkEmail,
   checkSelect,
 } from '../shared/utilities/validate';
+import IMember from '../shared/interfaces/member.interface';
 import classNames from 'classnames';
 import { camalize } from '../shared/utilities/stringUtils';
+import { MemberContext } from '../store/Context';
 
 interface IMembershipModal {
   show: boolean;
@@ -21,6 +23,8 @@ const MembershipModal = ({
   memberId,
   onClose,
 }: IMembershipModal): JSX.Element => {
+  const [state, dispatch] = useContext<any>(MemberContext);
+
   const {
     value: enteredFullNameValue,
     isValid: isValidName,
@@ -52,6 +56,16 @@ const MembershipModal = ({
   } = useInput((value) => checkEmail(value || ''));
 
   const {
+    value: enteredAddressValue,
+    isValid: isValidAddress,
+    hasError: addressHasError,
+    valueChangedHandler: addressInputChangedHandler,
+    valueBlurHandler: addressInputBlurHandler,
+    resetValue: resetAddressValue,
+    fetchValue: fetchAddressValue,
+  } = useInput((value) => checkNotEmpty(value || ''));
+
+  const {
     value: enteredGender,
     isValid: isValidGender,
     hasError: genderHasError,
@@ -61,37 +75,70 @@ const MembershipModal = ({
     fetchValue: fetchGenderValue,
   } = useInput((value) => checkSelect(value));
 
-  const closeModalHandler = () => {
+  const closeModalHandler = (): void => {
     onClose();
     resetFullNameValue();
     resetUsernameValue();
     resetEmailValue();
+    resetAddressValue();
     resetGenderValue();
   };
 
-  const saveMemberHandler = (event: any) => {
+  const saveMemberHandler = (): void => {
+    const newMember: IMember = {
+      id: memberId || Math.random().toString(),
+      fullName: enteredFullNameValue,
+      username: enteredUsernameValue,
+      email: enteredEmailValue,
+      address: enteredAddressValue,
+      gender: parseInt(enteredGender) || 0,
+    };
     closeModalHandler();
+    dispatch({
+      type: 'ADD_MEMBER',
+      payload: newMember,
+    });
   };
 
   useEffect(() => {
-    if (memberId) {
-      fetchFullNameValue('fsdfsd');
-      fetchUsernameValue('gfgd');
-      fetchEmailValue('gdfgfdg');
-      fetchGenderValue(2);
+    if (!memberId) {
+      return;
     }
+    const findMemberById: IMember = state.value.find(
+      (member: IMember) => member.id === memberId
+    );
+
+    if (!findMemberById) {
+      return;
+    }
+
+    const { fullName, username, email, address, gender } = findMemberById;
+    fetchFullNameValue(fullName);
+    fetchUsernameValue(username);
+    fetchEmailValue(email);
+    fetchAddressValue(address);
+    fetchGenderValue(gender);
   }, [
+    show,
     memberId,
     fetchFullNameValue,
     fetchUsernameValue,
     fetchEmailValue,
+    fetchAddressValue,
     fetchGenderValue,
+    state.value,
   ]);
 
-  const title = memberId ? 'Edit Member' : 'Add Member';
-  let formIsInValid = true;
+  const title: string = memberId ? 'Edit Member' : 'Add Member';
+  let formIsInValid: boolean = true;
 
-  if (isValidName && isValidUsername && isValidEmail && isValidGender) {
+  if (
+    isValidName &&
+    isValidUsername &&
+    isValidEmail &&
+    isValidGender &&
+    isValidAddress
+  ) {
     formIsInValid = false;
   }
 
@@ -99,6 +146,7 @@ const MembershipModal = ({
     <ModalOverlay title={title} show={show} size='lg' backdrop='static'>
       <ModalOverlay.Body>
         <Form validated={!formIsInValid}>
+          {memberId && <Form.Control type='text' value={memberId} readOnly />}
           <Form.Group
             className='mb-3'
             controlId={`fullName-${camalize(title)}`}
@@ -155,12 +203,16 @@ const MembershipModal = ({
           </Row>
           <Row>
             <Col>
-              <Form.Group controlId={`dateOfBirth-${camalize(title)}`}>
-                <Form.Label>date of birth</Form.Label>
+              <Form.Group controlId={`address-${camalize(title)}`}>
+                <Form.Label>Address</Form.Label>
                 <Form.Control
-                  type='date'
+                  className={classNames({ 'is-invalid': addressHasError })}
+                  type='text'
+                  aria-label='address'
                   placeholder='Enter date of birth'
-                  onChange={(event) => console.log(event.target.value)}
+                  value={enteredAddressValue}
+                  onChange={addressInputChangedHandler}
+                  onBlur={addressInputBlurHandler}
                 />
               </Form.Group>
             </Col>

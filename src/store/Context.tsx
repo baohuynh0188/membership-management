@@ -13,7 +13,7 @@ enum EMemberKind {
 
 interface IAction {
   type: string;
-  value: IMember[];
+  payload: any;
 }
 
 interface IState {
@@ -24,14 +24,14 @@ interface IInitialMemberState {
   value: IMember[];
 }
 
-const getLocalStorage = () => {
+const getLocalStorage = (): IMember[] => {
   try {
     return JSON.parse(localStorage.getItem('members') || '');
   } catch (error) {}
   return [];
 };
 
-const setLocalStorage = (value: IMember[]) => {
+const setLocalStorage = (value: IMember[]): void => {
   localStorage.setItem('members', JSON.stringify(value));
 };
 
@@ -40,17 +40,23 @@ const initialMemberState: IInitialMemberState = {
 };
 
 const memberReducer = (state: IState, action: IAction): IState => {
-  const { type, value } = action;
+  const { type, payload }: IAction = action;
   switch (type) {
     case EMemberKind.ADD_MEMBER:
-      //   setLocalStorage(value);
-      console.log('value ', value);
-      return { ...state, value };
-    case EMemberKind.EDIT_MEMBER:
-      setLocalStorage(value);
-      return { ...state, value };
-    // case EMemberKind.DELETE_MEMBER:
-    //   break;
+      let newMember: IMember[] = [...state.value];
+      const i = newMember.findIndex((member) => member.id === payload.id);
+      if (i > -1) newMember[i] = payload;
+      else newMember = [...state.value, payload];
+      setLocalStorage(newMember);
+      return { ...state, value: newMember };
+    case EMemberKind.DELETE_MEMBER:
+      const deletedMembers: IMember[] = [
+        ...(state?.value).filter(
+          ({ id: memberId }) => memberId !== payload.memberId
+        ),
+      ];
+      setLocalStorage(deletedMembers);
+      return { ...state, value: deletedMembers };
     default:
       return initialMemberState;
   }

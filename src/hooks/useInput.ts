@@ -2,7 +2,7 @@ import React from 'react';
 import { useReducer, useCallback } from 'react';
 
 enum EActionKind {
-    CHANGED_HANDLER = "CHANGED_HANDLER",
+    CHANGED_HANDLER = 'CHANGED_HANDLER',
     BLUR_HANDLER = 'BLUR_HANDLER',
     FETCH_DATA = 'FETCH_DATA',
     RESET = 'RESET',
@@ -19,13 +19,13 @@ interface IState {
     touched?: boolean;
 }
 
-const initialValuesState = {
+const initialValuesState: IState = {
     value: "",
     touched: false,
 };
 
 const valueReducer = (state: IState, action: IAction): IState => {
-    const { type, value, touched } = action;
+    const { type, value, touched }: IAction = action;
     switch (type) {
         case EActionKind.CHANGED_HANDLER:
             return { ...state, value };
@@ -45,10 +45,10 @@ const useInput = (validateValue: (value?: string) => boolean): any => {
         valueReducer,
         initialValuesState
     );
-    const { value, touched } = enteredValue;
+    const { value, touched }: IState = enteredValue;
 
     const valueIsValid = validateValue(value);
-    const hasError = !valueIsValid && touched;
+    const hasError: boolean = !valueIsValid && !!touched;
 
     const valueChangedHandler = (event: React.ChangeEvent<HTMLInputElement>): void => {
         dispatcher({ type: EActionKind.CHANGED_HANDLER, value: event?.target?.value });

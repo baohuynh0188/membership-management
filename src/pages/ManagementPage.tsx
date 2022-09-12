@@ -6,20 +6,25 @@ import MembershipModal from '../components/MembershipModal';
 import { MemberContext } from '../store/Context';
 
 const ManagementPage = (): JSX.Element => {
-  const [state] = useContext<any>(MemberContext);
+  const [state, dispatch] = useContext<any>(MemberContext);
   const [showModal, setShowModal] = useState<boolean>(false);
   const [memberId, setMemberId] = useState<string>('');
-  const members = state?.value || [];
+  const members: IMember[] = state?.value || [];
 
   const renderTableRow = (member: IMember): React.ReactNode => {
-    const { id, fullName, username, email, address, gender } = member;
+    const { id, fullName, username, email, address, gender }: IMember = member;
 
-    const onEditHandler = (memberId: string) => {
+    const onEditHandler = (memberId: string): void => {
       setShowModal(true);
       setMemberId(memberId);
     };
 
-    const onDeleteHandler = (memberId: string) => {};
+    const onDeleteHandler = (memberId: string): void => {
+      dispatch({
+        type: 'DELETE_MEMBER',
+        payload: { memberId },
+      });
+    };
 
     return (
       <tr key={id}>
@@ -30,13 +35,13 @@ const ManagementPage = (): JSX.Element => {
         <td>{address}</td>
         <td>{renderGender(gender)}</td>
         <td>
-          <Button variant='warning' onClick={onEditHandler.bind(null, id)}>
+          <Button variant='warning' onClick={() => onEditHandler(id)}>
             Edit
           </Button>
           <Button
             className='ms-2'
             variant='danger'
-            onClick={onDeleteHandler.bind(null, id)}
+            onClick={() => onDeleteHandler(id)}
           >
             Delete
           </Button>
@@ -51,6 +56,7 @@ const ManagementPage = (): JSX.Element => {
   };
 
   const closeModalHandler = (): void => {
+    setMemberId('');
     setShowModal(false);
   };
 
