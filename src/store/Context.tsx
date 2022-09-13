@@ -6,8 +6,7 @@ interface IMemberProvider {
 }
 
 enum EMemberKind {
-  ADD_MEMBER = 'ADD_MEMBER',
-  EDIT_MEMBER = 'EDIT_MEMBER',
+  ADD_EDIT_MEMBER = 'ADD_EDIT_MEMBER',
   DELETE_MEMBER = 'DELETE_MEMBER',
 }
 
@@ -42,7 +41,7 @@ const initialMemberState: IInitialMemberState = {
 const memberReducer = (state: IState, action: IAction): IState => {
   const { type, payload }: IAction = action;
   switch (type) {
-    case EMemberKind.ADD_MEMBER:
+    case EMemberKind.ADD_EDIT_MEMBER:
       let newMember: IMember[] = [...state.value];
       const i = newMember.findIndex((member) => member.id === payload.id);
       if (i > -1) newMember[i] = payload;

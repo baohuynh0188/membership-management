@@ -86,7 +86,7 @@ const MembershipModal = ({
 
   const saveMemberHandler = (): void => {
     const newMember: IMember = {
-      id: memberId || Math.random().toString(),
+      id: memberId || Math.floor(Math.random() * Date.now()).toString(),
       fullName: enteredFullNameValue,
       username: enteredUsernameValue,
       email: enteredEmailValue,
@@ -95,7 +95,7 @@ const MembershipModal = ({
     };
     closeModalHandler();
     dispatch({
-      type: 'ADD_MEMBER',
+      type: 'ADD_EDIT_MEMBER',
       payload: newMember,
     });
   };
@@ -146,7 +146,9 @@ const MembershipModal = ({
     <ModalOverlay title={title} show={show} size='lg' backdrop='static'>
       <ModalOverlay.Body>
         <Form validated={!formIsInValid}>
-          {memberId && <Form.Control type='text' value={memberId} readOnly />}
+          {memberId && (
+            <Form.Control type='text' value={memberId} hidden readOnly />
+          )}
           <Form.Group
             className='mb-3'
             controlId={`fullName-${camalize(title)}`}
@@ -209,7 +211,7 @@ const MembershipModal = ({
                   className={classNames({ 'is-invalid': addressHasError })}
                   type='text'
                   aria-label='address'
-                  placeholder='Enter date of birth'
+                  placeholder='Enter address'
                   value={enteredAddressValue}
                   onChange={addressInputChangedHandler}
                   onBlur={addressInputBlurHandler}
